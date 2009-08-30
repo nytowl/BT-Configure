@@ -1,0 +1,141 @@
+class BluetoothClasses:
+    #  Major Service Classes.(Can be ORed together)
+    CLASS_AUDIO   = 0x00200000
+    CLASS_CAPTURING   = 0x00080000
+    CLASS_INFORMATION   = 0x00800000
+    CLASS_LIMITED_DISCOVERABLE_MODE   = 0x00002000
+    CLASS_NETWORKING   = 0x00020000
+    CLASS_OBJECT_TRANSFER   = 0x00100000
+    CLASS_POSITIONING   = 0x00010000
+    CLASS_RENDERING   = 0x00040000
+    CLASS_RESERVED1   = 0x00004000
+    CLASS_RESERVED2   = 0x00008000
+    CLASS_SERVICE_ANY   = 0x00ffE000
+    CLASS_TELEPHONY   = 0x00400000
+    
+    #  Major Device Classes (Select one)
+    MAJOR_ANY   = 0x00001F00
+    MAJOR_AUDIO_VIDEO   = 0x00000400
+    MAJOR_COMPUTER   = 0x00000100
+    MAJOR_IMAGING   = 0x00000600
+    MAJOR_LAN_ACCESS_POINT   = 0x00000300
+    MAJOR_MISC   = 0x00000000
+    MAJOR_PERIPHERAL   = 0x00000500
+    MAJOR_PHONE   = 0x00000200
+    MAJOR_TOY   = 0x00000800
+    MAJOR_UNCLASSIFIED   = 0x00001F00
+    MAJOR_WEARABLE   = 0x00000700
+    
+    #  Masks used to isolate the class of device components
+    MAJOR_MASK   = 0x00001F00
+    MINOR_MASK   = 0x000000FC
+    SERVICE_MASK   = 0x00ffE000
+    MINOR_ANY   = 0x000000FC
+
+    #  Minor Device Class - audio/video Major class (Select one)
+    MINOR_AUDIO_ANY   = MINOR_ANY
+    MINOR_AUDIO_CAMCORDER   = 0x00000034
+    MINOR_AUDIO_CAR_AUDIO   = 0x00000020
+    MINOR_AUDIO_GAME_TOY   = 0x00000048
+    MINOR_AUDIO_HANDSFREE   = 0x00000008
+    MINOR_AUDIO_HEADPHONE   = 0x00000018
+    MINOR_AUDIO_HEADSET   = 0x00000004
+    MINOR_AUDIO_HIFI_AUDIO   = 0x00000028
+    MINOR_AUDIO_LOUDSPEAKER   = 0x00000014
+    MINOR_AUDIO_MICROPHONE   = 0x00000010
+    MINOR_AUDIO_PORTABLE_AUDIO   = 0x0000001C
+    MINOR_AUDIO_SETTOPBOX   = 0x00000024
+    MINOR_AUDIO_UNCLASSIFIED   = 0x00000000
+    MINOR_AUDIO_VCR   = 0x0000002C
+    MINOR_AUDIO_VIDEO_CAMERA   = 0x00000030
+    MINOR_AUDIO_VIDEO_CONF   = 0x00000040
+    MINOR_AUDIO_VIDEO_DISPLAY_AND_LOUDSPEAKER   = 0x0000003C
+    MINOR_AUDIO_VIDEO_MONITOR   = 0x00000038
+    
+    #  Minor Device Class - Computer Major class (Select one)
+    MINOR_COMP_ANY   = MINOR_ANY
+    MINOR_COMP_DESKTOP   = 0x00000004
+    MINOR_COMP_HANDHELD   = 0x00000010
+    MINOR_COMP_LAPTOP   = 0x0000000C
+    MINOR_COMP_PALM   = 0x00000014
+    MINOR_COMP_SERVER   = 0x00000008
+    MINOR_COMP_UNCLASSIFIED   = 0x00000000
+
+    #  Minor Device Class - Imaging Major class (Select multiple is possible)
+    MINOR_IMAGING_CAMERA   = 0x00000020
+    MINOR_IMAGING_DISPLAY   = 0x00000010
+    MINOR_IMAGING_PRINTER   = 0x00000080
+    MINOR_IMAGING_SCANNER   = 0x00000040
+    MINOR_IMAGING_UNCLASSIFIED   = 0x00000000
+
+    #  Minor Device Class - LAN Access Point Major class (Select one)
+    MINOR_LAN_0   = 0x00000000
+    MINOR_LAN_17   = 0x00000020
+    MINOR_LAN_33   = 0x00000040
+    MINOR_LAN_50   = 0x00000060
+    MINOR_LAN_67   = 0x00000080
+    MINOR_LAN_83   = 0x000000A0
+    MINOR_LAN_99   = 0x000000C0
+    MINOR_LAN_ANY  = MINOR_ANY
+    MINOR_LAN_NO_SERVICE   = 0x000000E0
+
+    #  Minor sub Device Class - Peripheral Major class (Select one)
+    MINOR_PERIPHERAL_CARD_READER   = 0x00000018
+    MINOR_PERIPHERAL_DIGITIZER_TABLET   = 0x00000014
+    MINOR_PERIPHERAL_GAMEPAD   = 0x00000008
+    MINOR_PERIPHERAL_JOYSTICK   = 0x00000004
+    MINOR_PERIPHERAL_REMOTE_CONTROL   = 0x0000000C
+    MINOR_PERIPHERAL_SENSING   = 0x00000010
+
+    #  Minor Device Class - Peripheral Major class (Select one)
+    MINOR_PERIPHERAL_COMBO   = 0x000000C0
+    MINOR_PERIPHERAL_KEYBOARD   = 0x00000040
+    MINOR_PERIPHERAL_POINTING   = 0x00000080
+    MINOR_PERIPHERAL_UNCLASSIFIED   = 0x00000000
+    
+    #  Minor Device Class - Phone Major class (Select one)
+    MINOR_PHONE_ANY   = MINOR_ANY
+    MINOR_PHONE_CELLULAR   = 0x00000004
+    MINOR_PHONE_CORDLESS   = 0x00000008
+    MINOR_PHONE_ISDN   = 0x00000014
+    MINOR_PHONE_MODEM   = 0x00000010
+    MINOR_PHONE_SMART   = 0x0000000C
+    MINOR_PHONE_UNCLASSIFIED   = 0x00000000
+
+    #  Minor sub Device Class - Toy Major class (Select one)
+    MINOR_TOY_CONTROLLER   = 0x00000010
+    MINOR_TOY_DOLL   = 0x0000000C
+    MINOR_TOY_GAME   = 0x00000014
+    MINOR_TOY_ROBOT   = 0x00000004
+    MINOR_TOY_VEHICLE   = 0x00000008
+
+    #  Minor sub Device Class - Wearable Major class (Select one)
+    MINOR_WEARABLE_GLASSES   = 0x00000014
+    MINOR_WEARABLE_HELMET   = 0x00000010
+    MINOR_WEARABLE_JACKET   = 0x0000000C
+    MINOR_WEARABLE_PAGER   = 0x00000008
+    MINOR_WEARABLE_WRISTWATCH   = 0x00000004
+
+    def GetMajor( self, cls ) :
+        if cls & self.MAJOR_AUDIO_VIDEO :
+            return "audio/video"
+        if cls & self.MAJOR_COMPUTER :
+            return "computer"
+        if cls & self.MAJOR_IMAGING :
+            return "imaging"
+        if cls & self.MAJOR_LAN_ACCESS_POINT :
+            return "access point"
+        if cls & self.MAJOR_MISC :
+            return "misc"
+        if cls & self.MAJOR_PERIPHERAL :
+            return "peripheral"
+        if cls & self.MAJOR_PHONE :
+            return "phone"
+        if cls & self.MAJOR_TOY :
+            return "toy"
+        if cls & self.MAJOR_UNCLASSIFIED :
+            return "unclassified"
+        if cls & self.MAJOR_WEARABLE :
+            return "wearable"
+
+        return "unknown"

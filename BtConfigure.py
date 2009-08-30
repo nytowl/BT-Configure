@@ -1,0 +1,390 @@
+#!/usr/bin/python
+#
+# Copyright (C) 2009 Angus Ainslie <angus@handheldshell.com>.
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+import sys
+import pygtk
+pygtk.require('2.0')
+import gtk
+import dbus
+import dbus.glib
+import dbus.service
+import gobject
+import os
+import time
+from stat import *
+from BluetoothClasses import *
+
+class ErrorReject(dbus.DBusException):
+    _dbus_error_name = "org.bluez.Error.Rejected"
+
+class ErrorCancel(dbus.DBusException):
+    _dbus_error_name = "org.bluez.Error.Canceled"
+
+class PasskeyAgent(dbus.service.Object):
+
+    @dbus.service.method(dbus_interface='org.bluez.Agent',
+                         in_signature='o', out_signature='s')
+
+    def RequestPinCode( self, device ):
+        print 'PasskeyAgent:RequestPin( %s )' % ( device )
+
+        pin_entry = gtk.Entry()
+        pinDlg = gtk.Dialog( "Enter PIN", None, 0, ( gtk.STOCK_OK, gtk.RESPONSE_OK,  gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL ))
+        pinDlg.set_has_separator( True )
+        pinDlg.vbox.pack_start( pin_entry, False, False, 0 )
+        
+        pin_entry.show()
+        response = pinDlg.run()
+
+        pin = ''
+
+        pinDlg.destroy()
+
+        if response == gtk.RESPONSE_OK:
+            pin = pin_entry.get_text()
+            if not pin:
+                return None
+            else :
+                return pin
+                
+        return None
+            
+
+    @dbus.service.method(dbus_interface='org.bluez.Agent',
+                         in_signature='o', out_signature='s')
+
+    def RequestPasskey(self, device ):
+        print 'PasskeyAgent:RequestPasskey( %s )' % ( device )
+
+        pin_entry = gtk.Entry()
+        pinDlg = gtk.Dialog( "Enter Passkey", None, 0, ( gtk.STOCK_OK, gtk.RESPONSE_OK,  gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL ))
+        pinDlg.set_has_separator( True )
+        pinDlg.vbox.pack_start( pin_entry, False, False, 0 )
+        
+        pin_entry.show()
+        response = pinDlg.run()
+
+        pin = ''
+
+        pinDlg.destroy()
+
+        if response == gtk.RESPONSE_OK:
+            pin = pin_entry.get_text()
+            if not pin:
+                return None
+            else :
+                return pin
+            
+        return None
+
+
+    @dbus.service.method(dbus_interface='org.bluez.Agent',
+                         in_signature='ou', out_signature='')
+
+    def RequestConfirmation(self, device, passkey ):
+        print 'PasskeyAgent:Confirm( %s, %s )' % ( device, passkey )
+
+    @dbus.service.method(dbus_interface='org.bluez.Agent',
+                         in_signature='ou', out_signature='')
+
+    def DisplayPasskey(self, device, passkey ):
+        print 'PasskeyAgent:Display( %s, %s, %s )' % ( device, passkey, entered )
+    @dbus.service.method(dbus_interface='org.bluez.Agent',
+                         in_signature='os', out_signature='')
+
+    def Authorize(self, device, uuid ):
+        print 'PasskeyAgent:Authorize( %s, %s )' % ( device, uuid )
+
+    @dbus.service.method(dbus_interface='org.bluez.Agent',
+                         in_signature='s', out_signature='')
+
+    def ConfirmModeChange(self, mode ):
+        print 'PasskeyAgent:ConfirmModeChange( %s )' % ( mode )
+
+    @dbus.service.method(dbus_interface='org.bluez.Agent',
+                         in_signature='', out_signature='')
+    def Cancel( self ):
+        print 'PasskeyAgent:Cancel()' 
+
+    @dbus.service.method(dbus_interface='org.bluez.Agent',
+                         in_signature='', out_signature='')
+    def Release( self ):
+        print 'PasskeyAgent:Release()' 
+
+class BtAttach:
+    def __init__(self):
+        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        self.window.connect("delete_event", self.delete_event)
+        self.window.connect("destroy", self.destroy)
+        self.window.set_title( "BT Pairing" )
+        self.window.set_border_width(10)
+        self.window.set_size_request(400, 300)
+        self.scrolled_window = gtk.ScrolledWindow()
+        self.scrolled_window.set_policy(  gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC )
+
+        self.HOME = os.environ["HOME"]
+        self.AGENT_PATH = '/my/PasskeyAgent'
+        self.bus = dbus.SystemBus();
+
+        self.sName = "Address"
+        self.cName = 0
+        self.sUsername = "Device Name"
+        self.cUsername = 1
+
+        self.bonding = False
+        self.restartDiscover = False
+
+        self.nameView = gtk.TreeView()
+        self.AddListColumn(self.sName, self.cName, True)
+        self.AddListColumn(self.sUsername, self.cUsername, False)
+
+        self.nameList = gtk.ListStore(str, str)
+        self.nameView.set_model(self.nameList)
+
+        self.mainBox = gtk.VBox( False, 1 )
+        self.mainBox.pack_start( self.nameView, False, False, 0 )
+        self.buttonBox = gtk.HBox( False, 1 )
+        self.mainBox.pack_end( self.buttonBox, False, False, 0 )
+        self.window.add( self.scrolled_window )
+        self.scrolled_window.add_with_viewport( self.mainBox )
+        
+        self.mainBox.show()
+        self.buttonBox.show()
+
+        self.connectButton = gtk.Button( "Connect" )
+        self.quitButton = gtk.Button( "Quit" )
+
+        self.buttonBox.pack_start( self.connectButton, True, True, 0 )
+        self.buttonBox.pack_start( self.quitButton, True, True, 0 )
+
+        self.connectButton.show()
+        self.quitButton.show()
+
+        self.connectButton.connect( "released", self.connect )
+        self.quitButton.connect( "released", self.destroy )
+
+        self.nameView.show()
+        self.scrolled_window.show()
+        self.window.show()
+
+        if self.InitBtDevice() == False :
+            dlg = gtk.MessageDialog( None, gtk.DIALOG_MODAL, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, "Please turn on Bluetooth adapter" )
+            dlg.run()
+            dlg.destroy()
+	    sys.exit()
+	
+	self.bt_devices = []
+        self.SetupSignals()
+
+    def InitBtDevice( self ) :
+        try :
+	    obj = self.bus.get_object('org.freesmartphone.ousaged', '/org/freesmartphone/Usage')
+	    self.usageIf = dbus.Interface(obj, 'org.freesmartphone.Usage' )
+        except :
+            print "not running on a Neo"
+	    self.usageIf = None
+            return
+
+        print "Running on a Neo"
+
+#        obj = self.bus.get_object('org.bluez', '/')
+#	self.powerIf = dbus.Interface(obj, 'org.freesmartphone.Device.PowerControl.Bluetooth' )
+#	self.powerIf.SetPower( "True" )
+
+	self.usageIf.RequestResource( 'Bluetooth' )
+	obj = self.bus.get_object('org.bluez', '/')
+	self.manager = dbus.Interface(obj, 'org.bluez.Manager')
+
+        done = False
+
+        while not done :
+            try :
+                self.adapterPath = self.manager.DefaultAdapter()
+                done = True
+            except Exception, e :
+		print "Failed get default adapter", Exception, e
+                state = self.usageIf.GetResourceState( "Bluetooth" )
+                print "waiting state : ", state
+                time.sleep( 0.5 )
+
+        state = self.usageIf.GetResourceState( "Bluetooth" )
+        print "Bluetooth state : ", state
+
+    def SetupSignals( self ) :
+        self.bus.add_signal_receiver( self.disc_started_signal, 'DiscoveryStarted', 'org.bluez.Adapter', 'org.bluez', self.adapterPath )
+        self.bus.add_signal_receiver( self.rem_dev_found_signal, 'DeviceFound', 'org.bluez.Adapter', 'org.bluez', self.adapterPath )
+        self.bus.add_signal_receiver( self.bonding_created, 'DeviceCreated', 'org.bluez.Adapter', 'org.bluez', self.adapterPath )
+        self.bus.add_signal_receiver( self.bonding_removed, 'DeviceRemoved', 'org.bluez.Adapter', 'org.bluez', self.adapterPath )
+
+    def bonding_created( self, path ) :
+        print 'Signal: BondingCreated(%s)' % ( path )
+	self.bonding = False
+	self.ConnectDevice( path )
+        self.adapter.StartDiscovery()
+
+    def bonding_removed( self, address ) :
+        print 'Signal: BondingRemoved(%s)' % ( address )
+
+    def connect( self, arg ) :
+        #print "connect", arg
+        selection = self.nameView.get_selection()
+        cursor = self.nameView.get_cursor()
+
+        if cursor == None :
+            return
+
+        current = cursor[0][0]
+
+        if current == None :
+            return
+
+        print "current : " , current
+
+        address = self.bt_devices[current]['address']
+        name = self.bt_devices[current]['name']
+
+        try :
+            objPath = self.adapter.FindDevice( address )
+            self.adapter.RemoveDevice(objPath)
+        except dbus.exceptions.DBusException, e:
+            print "Find address failed, new device"
+
+        self.bonding = True
+        self.adapter.CreatePairedDevice( address, self.AGENT_PATH, "DisplayYesNo",
+                                        reply_handler = self.CreateDeviceReply, 
+                                        error_handler = self.CreateDeviceError )
+
+        
+
+    def PrintDeviceInfo( self, remoteInfo ) :
+        for i in remoteInfo :
+            print i, ":", remoteInfo[i]
+
+    def CreateDeviceReply( self, device ):
+        print "New device (%s)" % ( device )
+
+    def CreateDeviceError( self, error ):
+        self.bonding = False
+        print "Creating device failed: %s" % (error)
+
+    def ConnectDevice( self, path ) :
+        #objPath = self.adapter.FindDevice( address )
+	obj = self.bus.get_object('org.bluez', path )
+	device = dbus.Interface(obj, 'org.bluez.Device')
+        props = device.GetProperties()
+        bt = BluetoothClasses()
+	major = bt.GetMajor( props['Class'] )
+	print "major :", major
+
+        if major == 'audio/video' :
+            fd = os.open( self.HOME + "/.asoundrc", os.O_RDWR | os.O_APPEND | os.O_CREAT )
+	    os.lseek( fd, 0, 2 )
+            os.write( fd, "\npcm.headset {\n\ttype bluetooth\n" )
+            os.write( fd, "\tdevice " + props['Address'] + "\n" )
+            os.write( fd, "\tprofile \"auto\"\n}\n" )
+#        elif info['minor_class'] == 'keyboard' :
+#	    os.system( 'hidd --server ')
+#    	    os.system( 'hidd --connect ' + address )
+        
+    def rem_dev_found_signal(self, address, info ):
+        print 'Signal: RemoteDeviceFound(%s, %s)' % (address, info )
+
+	for dev in self.bt_devices :
+	    if dev['address'] == address :
+		return
+
+        if 'Name' in info :
+            self.bt_devices.append( { 'address':address, 'name':info['Name'], 'class':info['Class'] } )
+        else :
+            print "no name"
+            return
+
+        self.nameList.append( ( address, info['Name'] ))
+
+    def rem_dev_class_signal(self, address, cls ):
+        print 'Signal: RemoteClassUpdated(%s, %s)' % ( address, cls )
+
+    def disc_completed_signal( self ):
+        print 'Signal: DiscoveryCompleted()'
+        
+        if not self.bonding :
+            print "Restart Discover :", self.bonding
+            self.adapter.StartDiscovery()
+
+    def rem_dev_connected( self, address ):
+        print 'Signal: RemoteDeviceConnected(%s)' % ( address )
+
+    def disc_started_signal( self ):
+        print 'Signal: DiscoveryStarted()'
+
+    def delete_event( self, arg1, arg2 ):
+        print "delete event occurred"
+	if self.usageIf != None :
+	    self.usageIf.ReleaseResource( "Bluetooth" )
+        return False
+
+    def destroy(self, widget, data=None):
+        gtk.main_quit()
+
+    def SetupDevice( self ) :
+        if self.adapterPath == None :
+            print "No bluetooth adapter found"
+	    self.adapter = None
+            return False
+
+	obj = self.bus.get_object('org.bluez', self.adapterPath )
+	self.adapter = dbus.Interface(obj, 'org.bluez.Adapter')
+
+        self.agent = PasskeyAgent(self.bus, self.AGENT_PATH)
+
+        self.adapter.SetProperty( "Powered", True )
+        self.adapter.SetProperty( "Discoverable", True )
+        self.adapter.StartDiscovery()
+
+        return True
+
+    def AddListColumn(self, title, columnId, sort):
+        """This function adds a column to the list view.
+        First it create the gtk.TreeViewColumn and then set
+        some needed properties"""
+
+        column = gtk.TreeViewColumn(title, gtk.CellRendererText()
+                                    , text=columnId)
+        column.set_resizable(True)
+        if sort :
+            column.set_sort_order( gtk.SORT_DESCENDING )
+            column.set_sort_column_id(columnId)
+        else :
+            column.set_clickable( False )
+
+        self.nameView.append_column(column)
+
+    def main(self):
+        if self.SetupDevice() == False :
+            dlg = gtk.MessageDialog( None, 0, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, "No Bluetooth adapter found" )
+            dlg.run()
+            dlg.destroy()
+            return None
+
+        gtk.main()
+    
+handler = BtAttach()
+
+handler.main()
+	
+
