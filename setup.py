@@ -31,7 +31,7 @@ class my_clean(_clean):
     def run(self):
         _clean.run(self)
 
-setup(name='BT-Configure',
+setup(name='ct-configure',
       version='0.1',
       description="bluez4 device scanner and pairing",
       author="Angus Ainslie",
@@ -44,9 +44,6 @@ setup(name='BT-Configure',
                      ['BT-Configure.desktop']),
                     ('icons', ['bt-configure.png']),
                     ('bt-configure' ['BluetoothClasses.py']),
-                    ('../../etc/paroli/', ['data/paroli.cfg'])] \
-          + dbus_data \
-          + sound_data,
 
       cmdclass = {'clean': my_clean},
       
