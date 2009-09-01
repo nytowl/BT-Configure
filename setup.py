@@ -31,19 +31,19 @@ class my_clean(_clean):
     def run(self):
         _clean.run(self)
 
-setup(name='ct-configure',
+setup(name='bt-configure',
       version='0.1',
       description="bluez4 device scanner and pairing",
       author="Angus Ainslie",
       author_email='angus@akkea.ca',
-      package_dir = {'': 'bt-configure'},
-      packages = ['bt-configure', ''],
+#      package_dir = {''},
+#      packages = ['bt-configure', ''],
       scripts= ['BtConfigure.py'],
       # XXX: Those locations may not work on the neo !
       data_files = [('applications',
-                     ['BT-Configure.desktop']),
+                     ['bt-configure.desktop']),
                     ('icons', ['bt-configure.png']),
-                    ('bt-configure' ['BluetoothClasses.py']),
+                    ('bt-configure', ['BluetoothClasses.py'])],
 
       cmdclass = {'clean': my_clean},
       
