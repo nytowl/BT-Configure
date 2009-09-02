@@ -38,12 +38,11 @@ setup(name='bt-configure',
       author_email='angus@akkea.ca',
 #      package_dir = {''},
 #      packages = ['bt-configure', ''],
-      scripts= ['BtConfigure.py'],
-      # XXX: Those locations may not work on the neo !
+      scripts= ['bt-configure'],
+      py_modules = ['BluetoothClasses'],
       data_files = [('applications',
                      ['bt-configure.desktop']),
-                    ('icons', ['bt-configure.png']),
-                    ('bt-configure', ['BluetoothClasses.py'])],
+                    ('icons', ['bt-configure.png'])],
 
       cmdclass = {'clean': my_clean},
       

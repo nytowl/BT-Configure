@@ -195,18 +195,21 @@ class BtAttach:
         try :
 	    obj = self.bus.get_object('org.freesmartphone.ousaged', '/org/freesmartphone/Usage')
 	    self.usageIf = dbus.Interface(obj, 'org.freesmartphone.Usage' )
+            print "Running on a Neo"
+            self.neo = True
         except :
             print "not running on a Neo"
 	    self.usageIf = None
-            return
+            self.neo = False
+#            return
 
-        print "Running on a Neo"
 
 #        obj = self.bus.get_object('org.bluez', '/')
 #	self.powerIf = dbus.Interface(obj, 'org.freesmartphone.Device.PowerControl.Bluetooth' )
 #	self.powerIf.SetPower( "True" )
 
-	self.usageIf.RequestResource( 'Bluetooth' )
+        if self.neo == True :
+            self.usageIf.RequestResource( 'Bluetooth' )
 	obj = self.bus.get_object('org.bluez', '/')
 	self.manager = dbus.Interface(obj, 'org.bluez.Manager')
 
@@ -218,12 +221,16 @@ class BtAttach:
                 done = True
             except Exception, e :
 		print "Failed get default adapter", Exception, e
-                state = self.usageIf.GetResourceState( "Bluetooth" )
-                print "waiting state : ", state
-                time.sleep( 0.5 )
+                if self.neo == True :
+                    state = self.usageIf.GetResourceState( "Bluetooth" )
+                    print "waiting state : ", state
+                    time.sleep( 0.5 )
+                else :
+                    done = True
 
-        state = self.usageIf.GetResourceState( "Bluetooth" )
-        print "Bluetooth state : ", state
+        if self.neo == True :
+            state = self.usageIf.GetResourceState( "Bluetooth" )
+            print "Bluetooth state : ", state
 
     def SetupSignals( self ) :
         self.bus.add_signal_receiver( self.disc_started_signal, 'DiscoveryStarted', 'org.bluez.Adapter', 'org.bluez', self.adapterPath )
