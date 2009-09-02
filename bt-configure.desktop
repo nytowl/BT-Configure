@@ -1,10 +1,10 @@
 [Desktop Entry]
-Name=BT-Confgure
+Name=BT-Configure
 Comment=bluez4 scanning and pairing utility
 Encoding=UTF-8
 Version=1.0
 Type=Application
-Exec=BtConfigure.py
+Exec=bt-configure
 Icon=bt-configure.png
 Terminal=false
 Categories=GTK;Applications;PIM
