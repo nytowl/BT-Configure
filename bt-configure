@@ -301,7 +301,7 @@ class BtAttach:
         if major == 'audio/video' :
             fd = os.open( self.HOME + "/.asoundrc", os.O_RDWR | os.O_APPEND | os.O_CREAT )
 	    os.lseek( fd, 0, 2 )
-            os.write( fd, "\npcm.headset {\n\ttype bluetooth\n" )
+            os.write( fd, "\npcm.bluetooth {\n\ttype bluetooth\n" )
             os.write( fd, "\tdevice " + props['Address'] + "\n" )
             os.write( fd, "\tprofile \"auto\"\n}\n" )
 #        elif info['minor_class'] == 'keyboard' :
